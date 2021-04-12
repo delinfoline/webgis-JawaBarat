@@ -29,19 +29,19 @@
         osm.addTo(map);
 
         // Adding wms layer from geoserver //
-        var wmsLayer1 = L.Geoserver.wms("http://localhost:8080/geoserver/wms", {
+        var wmsLayer = L.Geoserver.wms("http://localhost:8080/geoserver/wms", {
             layers:
-            "kotabandung:adminkec",
+            "kotabandung:batas_admin",
             transparent: true,
             // CQL_FILTER: "",  (type your filter based on geoserver rule)
             attribution: "Distaru Kota Bandung",
         });
-        // wmsLayer1.addTo(map);
+        wmsLayer.addTo(map);
 
         var wmsLayer2 = L.Geoserver.wms("http://localhost:8080/geoserver/wms", {
             layers: "kotabandung:adminkel",
         });
-        wmsLayer2.addTo(map);
+        // wmsLayer2.addTo(map);
 
         // Adding wfm from geoserver (ro feature data) //
         var wfsLayer = L.Geoserver.wfs("http://localhost:8080/geoserver/wfs", {
@@ -56,8 +56,9 @@
         });
         // wfsLayer.addTo(map);
 
+// adding legend to map
         var layerLegend = L.Geoserver.legend("http://localhost:8080/geoserver/wms", {
-        layers: "kotabandung:adminkel",
+        layers: "kotabandung:batas_admin",
         // style: `stylefile`,
         });
 
