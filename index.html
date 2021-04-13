@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -9,8 +10,10 @@
     <!-- leaflet css link -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
 
+
     <title>WEBGIS Kota Bandung</title>
 </head>
+
 <body>
     <div id="map"></div>
 
@@ -19,52 +22,67 @@
 
     <!-- Link from geoserver request -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="lib/L.Geoserver.js"></script>
+    <!-- <script src="lib/L.Geoserver.js"></script> -->
+
+
+    <!-- Bettew WMS -->
+    <Script src="lib/L.TileLayer.BetterWMS.js"></Script>
 
     <script>
-        var map = L.map("map").setView([-6.9073944,107.6390274], 13);
+        var map = L.map("map").setView([-6.9073944, 107.6390274], 13);
         var osm = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributor',
         });
         osm.addTo(map);
 
         // Adding wms layer from geoserver //
-        var wmsLayer = L.Geoserver.wms("http://localhost:8080/geoserver/wms", {
-            layers:
-            "kotabandung:batas_admin",
+        var wmsLayer = L.Geoserver.betterWms("http://localhost:8080/geoserver/wms", {
+            layers: "kotabandung:batas_admin",
             transparent: true,
             // CQL_FILTER: "",  (type your filter based on geoserver rule)
             attribution: "Distaru Kota Bandung",
         });
-        wmsLayer.addTo(map);
+        // wmsLayer.addTo(map);
 
-        var wmsLayer2 = L.Geoserver.wms("http://localhost:8080/geoserver/wms", {
-            layers: "kotabandung:adminkel",
+        var wms_url = "http://localhost:8080/geoserver/kotabandung/wms?service=WMS&version=1.1.0&request=GetMap&layers=kotabandung%3Aadministrasi_desa&bbox=107.54532623291%2C-6.96274662017822%2C107.665672302246%2C-6.84074544906616&width=757&height=768"
+
+        var wmsLayer2 = L.tileLayer.betterWms("http://localhost:8080/geoserver/wms", {
+            layers: "kotabandung:administrasi_desa",
+            format: "image/png",
+            transparent: true,
+            // CQL_FILTER: "",  (type your filter based on geoserver rule)
+            attribution: "Distaru Kota Bandung",
         });
+        wmsLayer2.addTo(map);
+
+        // var wmsLayer2 = L.Geoserver.wms("http://localhost:8080/geoserver/wms", {
+        //     layers: "kotabandung:adminkel",
+        // });
         // wmsLayer2.addTo(map);
 
-        // Adding wfm from geoserver (ro feature data) //
+        // Adding wfs from geoserver (ro feature data) //
         var wfsLayer = L.Geoserver.wfs("http://localhost:8080/geoserver/wfs", {
-        layers: "kotabandung:adminkec,kotabandung:adminkel",
+            layers: "kotabandung:administrasi_desa",
 
-        onEachFeature: function (feature, layer){
-            console.log(feature);
-            layer.bindPopup(
-                "this is popup: building tipe: "+ feature.properties.lenght
-            );
-        },
+            onEachFeature: function (feature, layer) {
+                console.log(feature);
+                layer.bindPopup(
+                    "this is popup: building tipe: " + feature.properties.lenght
+                );
+            },
         });
-        // wfsLayer.addTo(map);
+        wfsLayer.addTo(map);
 
-// adding legend to map
+        // adding legend to map
         var layerLegend = L.Geoserver.legend("http://localhost:8080/geoserver/wms", {
-        layers: "kotabandung:batas_admin",
-        // style: `stylefile`,
+            layers: "kotabandung:batas_admin",
+            // style: `stylefile`,
         });
 
         layerLegend.addTo(map);
 
-        
+
     </script>
 </body>
+
 </html>
