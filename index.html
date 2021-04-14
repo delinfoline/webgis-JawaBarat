@@ -10,7 +10,6 @@
     <!-- leaflet css link -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
 
-
     <title>WEBGIS Kota Bandung</title>
 </head>
 
@@ -22,11 +21,11 @@
 
     <!-- Link from geoserver request -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <!-- <script src="lib/L.Geoserver.js"></script> -->
+    <script src="lib/L.Geoserver.js"></script>
 
 
     <!-- Bettew WMS -->
-    <Script src="lib/L.TileLayer.BetterWMS.js"></Script>
+    <Script src="/lib/L.TileLayer.BetterWMS.js"></Script>
 
     <script>
         var map = L.map("map").setView([-6.9073944, 107.6390274], 13);
@@ -35,18 +34,16 @@
         });
         osm.addTo(map);
 
-        // Adding wms layer from geoserver //
-        var wmsLayer = L.Geoserver.betterWms("http://localhost:8080/geoserver/wms", {
-            layers: "kotabandung:batas_admin",
+        // Adding wms layer from geoserver
+        var wmsLayer1 = L.tileLayer.betterWms("http://localhost:8080/geoserver/wms", {
+            layers: "kotabandung:transportasi_bandung",
+            format: "image/png",
             transparent: true,
-            // CQL_FILTER: "",  (type your filter based on geoserver rule)
             attribution: "Distaru Kota Bandung",
         });
-        // wmsLayer.addTo(map);
+        wmsLayer1.addTo(map);
 
-        var wms_url = "http://localhost:8080/geoserver/kotabandung/wms?service=WMS&version=1.1.0&request=GetMap&layers=kotabandung%3Aadministrasi_desa&bbox=107.54532623291%2C-6.96274662017822%2C107.665672302246%2C-6.84074544906616&width=757&height=768"
-
-        var wmsLayer2 = L.tileLayer.betterWms("http://localhost:8080/geoserver/wms", {
+        var wmsLayer2 = L.Geoserver.wms("http://localhost:8080/geoserver/wms", {
             layers: "kotabandung:administrasi_desa",
             format: "image/png",
             transparent: true,
@@ -55,31 +52,89 @@
         });
         wmsLayer2.addTo(map);
 
+        var wmsLayer3 = L.Geoserver.wms("http://localhost:8080/geoserver/wms", {
+            layers: "kotabandung:batas_admin",
+            format: "image/png",
+            transparent: true,
+            // CQL_FILTER: "",  (type your filter based on geoserver rule)
+            attribution: "Distaru Kota Bandung",
+        });
+        wmsLayer3.addTo(map);
+
         // var wmsLayer2 = L.Geoserver.wms("http://localhost:8080/geoserver/wms", {
-        //     layers: "kotabandung:adminkel",
+        //     layers: "kotabandung:transportasi_wgs",
         // });
         // wmsLayer2.addTo(map);
 
         // Adding wfs from geoserver (ro feature data) //
-        var wfsLayer = L.Geoserver.wfs("http://localhost:8080/geoserver/wfs", {
-            layers: "kotabandung:administrasi_desa",
+        // var wfsLayer = L.Geoserver.wfs("http://localhost:8080/geoserver/wfs", {
+        //     layers: "kotabandung:administrasi_desa",
 
-            onEachFeature: function (feature, layer) {
-                console.log(feature);
-                layer.bindPopup(
-                    "this is popup: building tipe: " + feature.properties.lenght
-                );
-            },
+        //     onEachFeature: function (feature, layer) {
+        //         console.log(feature);
+        //         layer.bindPopup(
+        //             "this is popup: building tipe: " + feature.properties.lenght
+        //         );
+        //     },
+        // });
+        // wfsLayer.addTo(map);
+
+        // Adding basemaps list //
+        var basemap0 = L.tileLayer('http://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+            attribution: 'Google Terrain'
         });
-        wfsLayer.addTo(map);
+
+        var basemap1 = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+            attribution: 'Google Satellite'
+        });
+
+        var basemap2 = L.tileLayer('http://{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+            attribution: 'Google Hybrid'
+        });
+        var basemap3 = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+            maxZoom: 28,
+        });
+
+        var basemap4 = L.tileLayer('http://localhost/bandungtile/{z}/{x}/{y}.png', {
+            maxZoom: 28,
+            attribution: 'owntile'
+        });
+
+        // Adding control legend //
+        var baseMaps = {
+            'Google Terrain': basemap0,
+            'Google Satellite': basemap1,
+            'Google Hybrid': basemap2,
+            'Esri Satellite': basemap3,
+            'Foto Udara Orthorectified': basemap4
+        };
+
+        var overlayMaps = {
+            "Transportasi": wmsLayer1,
+            "Administrasi Kelurahan": wmsLayer2,
+            "Batas Administrasi": wmsLayer3
+        };
+        L.control.layers(baseMaps, overlayMaps, { position: 'topright' }, { collapsed: false }).addTo(map);
 
         // adding legend to map
         var layerLegend = L.Geoserver.legend("http://localhost:8080/geoserver/wms", {
-            layers: "kotabandung:batas_admin",
+            layers: "kotabandung:transportasi_bandung"
             // style: `stylefile`,
         });
-
         layerLegend.addTo(map);
+
+        var layerLegend2 = L.Geoserver.legend("http://localhost:8080/geoserver/wms", {
+            layers: "kotabandung:batas_admin"
+            // style: `stylefile`,
+        });
+        layerLegend2.addTo(map);
 
 
     </script>
